@@ -1,5 +1,8 @@
 // Store our API for USGS earthquake data
 var usgsUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+// Store our API endpoint inside queryUrl
+// var tectonic_plates_url = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json";
+var tectonic_plates_url = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json"
 
 // markerSize function 
 function markerSize(magnitude) {
@@ -51,16 +54,30 @@ var baseMaps = {
     Light: light,
     Dark: dark
 };
+
+var faultlines = new L.LayerGroup();
+  d3.json(tectonic_plates_url, function(plateData) {
+     // Adding our geoJSON data, along with style information, to the tectonicplates layer
+     L.geoJson(plateData, {
+       color: "orange",
+      // weight: 2
+     })
+
+     .addTo(faultlines);
+
+   });
+
   // Object to hold overlay layer
   var overlayMaps = {
-    Earthquakes: earthquakes
+    Earthquakes: earthquakes,
+    "Fault Lines": faultlines
   };
 
   // Create map object
   var myMap = L.map("map", {
     center: [39.83333, -98.58333],
     zoom: 5,
-    layers: [dark, earthquakes]
+    layers: [dark, earthquakes, faultlines]
   });
 
   // Layer control
@@ -103,7 +120,7 @@ function createFeatures(earthquakeData) {
   var baseMarkerOptions = {
     color: '#191919',
     weight: 1,
-    fillOpacity: 0.9
+    fillOpacity: 0.7
   }
 
   // Create GeoJSON layer containing the features array
